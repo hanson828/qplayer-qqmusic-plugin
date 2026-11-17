@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "id": "qqmusic",
+  "name": "QQ音乐",
+  "version": "1.0.0",
+  "apiVersion": "1.0",
+  "minHostVersion": "1.9.7",
+  "entry": "src/main.js",
+  "publisher": "qplayer-community",
+  "capabilities": [
+    "searchSongs",
+    "searchAlbums",
+    "searchArtists",
+    "searchPlaylists",
+    "songDetails",
+    "playlistDetails",
+    "albumDetails",
+    "artistDetails",
+    "home",
+    "recent",
+    "userPlaylists",
+    "resolveStream",
+    "lyrics",
+    "account",
+    "login",
+    "like",
+    "playlistMutation",
+    "playlistReorder",
+    "playlistCover",
+    "scrobble",
+    "heartRecommendation",
+    "share"
+  ],
+  "permissions": [
+    "network",
+    "credentials",
+    "webAuth"
+  ],
+  "networkDomains": [
+    "y.qq.com",
+    "c.y.qq.com",
+    "u.y.qq.com",
+    "i.y.qq.com",
+    "y.gtimg.cn",
+    "*.gtimg.cn",
+    "p.qpic.cn",
+    "qpic.y.qq.com",
+    "*.qpic.cn",
+    "ws.stream.qqmusic.qq.com",
+    "ssl.ptlogin2.qq.com",
+    "ssl.ptlogin2.graph.qq.com",
+    "xui.ptlogin2.qq.com",
+    "graph.qq.com",
+    "thirdqq.qlogo.cn",
+    "*.qlogo.cn"
+  ],
+  "networkMethods": [
+    "GET",
+    "POST"
+  ],
+  "ui": []
+}
