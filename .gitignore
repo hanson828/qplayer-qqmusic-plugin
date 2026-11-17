@@ -1,5 +1,7 @@
 dist/
 __pycache__/
 *.pyc
+*.pem
+publisher-private.pem
 .DS_Store
 Thumbs.db

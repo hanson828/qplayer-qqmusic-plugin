@@ -45,7 +45,8 @@ QPlayer 的独立 QQ 音乐音源插件，实现 QPlayer JavaScript 插件 ABI 1
    python scripts/package.py
    ```
 
-   产物为 `dist/qqmusic-1.0.0.qplug`，未签名，QPlayer 手动导入时会显示代码执行警告。
+   产物为 `dist/qqmusic-1.0.0.qplug`。开发包未签名；Release 包使用
+   [publisher-key.pub](publisher-key.pub) 对应的 P-256 私钥签名。
 
 2. 在 QPlayer 中打开「设置 → 音源插件 → 导入插件包」，选择该文件并启用。
 
@@ -58,8 +59,13 @@ QPlayer 的独立 QQ 音乐音源插件，实现 QPlayer JavaScript 插件 ABI 1
 ```bash
 node --check src/main.js
 python scripts/package.py
+python scripts/sign-package.py dist/qqmusic-1.0.0.qplug /secure/path/publisher-private.pem
 python scripts/verify-package.py dist/qqmusic-1.0.0.qplug
 ```
+
+P-256 私钥必须保存在仓库外，不能提交；[publisher-key.pub](publisher-key.pub)
+是给 QPlayer 音源目录固定用的公钥。签名步骤会写入
+`META-INF/qplayer.sig`（对 `qplayer-files.json` 的 DER ECDSA/SHA-256 签名）。
 
 插件运行在 QPlayer 的 Rhino Realm 中，只能通过全局 `qplayer` 对象访问宿主能力；
 本实现使用 `http.request`、`credentials.*`、`storage.*` 与声明式登录流程。
