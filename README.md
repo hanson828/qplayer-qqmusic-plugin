@@ -64,8 +64,21 @@ python scripts/verify-package.py dist/qqmusic-1.0.0.qplug
 插件运行在 QPlayer 的 Rhino Realm 中，只能通过全局 `qplayer` 对象访问宿主能力；
 本实现使用 `http.request`、`credentials.*`、`storage.*` 与声明式登录流程。
 
-## 许可
+## 许可与来源
 
-MIT。协议实现参考并改编自
-[TIMER-err/qplayer-qqmusic-plugin](https://github.com/TIMER-err/qplayer-qqmusic-plugin)（MIT），
-版权声明见 [LICENSE](LICENSE)。
+MIT。本项目以
+[TIMER-err/qplayer-qqmusic-plugin](https://github.com/TIMER-err/qplayer-qqmusic-plugin)
+（MIT，Copyright (c) TIMER-err）为基础修改；`scripts/verify-package.py` 直接来自
+[TIMER-err/qplayer-plugin-template](https://github.com/TIMER-err/qplayer-plugin-template)
+（MIT，Copyright (c) TIMER-err）。
+
+接口调研还参考了：
+
+- [tlyanyu/multiPlatformMusicApi](https://github.com/tlyanyu/multiPlatformMusicApi)
+  （未声明许可证）：「每日30首」卡片定位与 `GetRadarSong` 参数，按其思路重新实现，未复制源文件。
+- [jsososo/QQMusicApi](https://github.com/jsososo/QQMusicApi)（GPL-3.0）：
+  仅确认 `client_music_search_songlist` 等接口路径，未复制源文件。
+- [TIMER-err/qplayer](https://github.com/TIMER-err/qplayer)（Apache-2.0）：
+  仅参考插件 ABI、权限与安全模型文档，未复制源代码。
+
+完整的来源、修改内容与参考清单见 [LICENSE](LICENSE)。

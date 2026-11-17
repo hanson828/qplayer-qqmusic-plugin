@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Copied from TIMER-err/qplayer-plugin-template (MIT License).
+# https://github.com/TIMER-err/qplayer-plugin-template
+# Copyright (c) TIMER-err
 import argparse
 import hashlib
 import json

@@ -1,6 +1,8 @@
 MIT License
 
-Copyright (c) 2026 TIMER-err (qplayer-qqmusic-plugin)
+Copyright (c) 2026 TIMER-err
+  qplayer-qqmusic-plugin: https://github.com/TIMER-err/qplayer-qqmusic-plugin
+  qplayer-plugin-template: https://github.com/TIMER-err/qplayer-plugin-template
 Copyright (c) 2026 qplayer-qqmusic-plugin contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,3 +22,61 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+===============================================================================
+来源、修改与参考说明 / Provenance, Modifications and References
+===============================================================================
+
+一、修改自 / Based on
+-------------------------------------------------------------------------------
+本项目 src/main.js 以 TIMER-err/qplayer-qqmusic-plugin（MIT License）为基础
+修改而来：
+
+  https://github.com/TIMER-err/qplayer-qqmusic-plugin
+  Copyright (c) TIMER-err
+
+保留并扩展的主要部分：
+  * musicu.fcg 请求构造、Cookie / session 读取与 musickey 刷新
+  * QQ 扫码、QQ/微信网页、粘贴 Cookie 三种登录流程
+  * 歌曲、歌单、专辑、歌手的 DTO 映射
+  * 歌单增删、收藏、换封面、排序等写接口
+  * Vkey 播放地址解析与 LRC 歌词获取
+  * QPlayer capability handler 的组织方式
+
+本项目的 scripts/verify-package.py 直接复制自
+TIMER-err/qplayer-plugin-template（MIT License），未做实质修改：
+
+  https://github.com/TIMER-err/qplayer-plugin-template
+  Copyright (c) TIMER-err
+
+二、新增或修改的内容 / Additions and Changes
+-------------------------------------------------------------------------------
+  * 每日 30 首：读取 music.recommend.RecommendFeed 中「每日30首」卡片并
+    拉取对应歌单
+  * 首页/心动推荐：music.recommend.TrackRelationServer/GetRadarSong 分页
+  * 新增 searchAlbums、searchArtists、searchPlaylists 搜索能力
+  * 新增 recent、scrobble、heartRecommendation、share
+  * 歌词增加翻译 sidecar，歌曲增加 artworkThumbUrl
+  * 新增 scripts/package.py、README 与打包说明
+
+三、接口调研参考 / API research references（未复制源代码）
+-------------------------------------------------------------------------------
+  * tlyanyu/multiPlatformMusicApi
+    https://github.com/tlyanyu/multiPlatformMusicApi
+    该仓库未声明许可证。仅参考其「每日30首」卡片定位方式与 GetRadarSong
+    参数，并按本项目结构重新实现；没有复制其源文件代码。
+
+  * jsososo/QQMusicApi（GPL-3.0）
+    https://github.com/jsososo/QQMusicApi
+    仅用于确认 client_music_search_songlist 等公开接口路径与参数；
+    没有复制其源文件代码。
+
+  * TIMER-err/qplayer（Apache-2.0）
+    https://github.com/TIMER-err/qplayer
+    仅参考插件 ABI、权限与安全模型文档；没有复制其源代码。
+
+四、其他 / Other
+-------------------------------------------------------------------------------
+QQ 音乐、QQ、微信等名称与商标归其权利人所有。本项目为非官方第三方插件，
+与腾讯及其关联公司无隶属、合作或背书关系，不包含音频、账号凭据或受版权
+保护的媒体内容。使用者需自行遵守 QQ 音乐服务条款与当地法律。

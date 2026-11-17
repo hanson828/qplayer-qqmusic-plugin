@@ -6,8 +6,8 @@
  * 实现了 QPlayer JavaScript 插件 ABI 1.0：搜索、详情、首页推荐、每日推荐、
  * 最近播放、登录、收藏、歌单写入、播放地址与歌词。
  *
- * 协议实现部分参考并改编自 TIMER-err/qplayer-qqmusic-plugin（MIT License），
- * 版权声明见仓库根目录 LICENSE。
+ * 本项目以 TIMER-err/qplayer-qqmusic-plugin（MIT License）为基础修改，
+ * 并参考了若干公开接口实现。完整的来源、修改与参考清单见仓库根目录 LICENSE。
  */
 
 var UA_PC = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36";
