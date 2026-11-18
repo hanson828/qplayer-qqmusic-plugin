@@ -14,8 +14,8 @@ QPlayer 的独立 QQ 音乐音源插件，实现 QPlayer JavaScript 插件 ABI 1
 | `songDetails` | 按 songmid 批量获取歌曲详情 |
 | `playlistDetails` | 歌单详情与曲目，分页续拉，私密歌单需登录 |
 | `albumDetails` / `artistDetails` | 专辑、歌手详情及作品 |
-| `home` | 首页推荐歌曲 + 推荐歌单 |
-| `home({operation:"recommendSongs"})` | **每日 30 首**（登录后读取「每日30首」卡片对应的歌单） |
+| `home` | 首页雷达/猜你喜欢歌曲 + 推荐歌单（含「每日30首」歌单卡片） |
+| `home({operation:"recommendSongs"})` | 雷达/猜你喜欢歌曲列表；未登录回退热歌榜 |
 | `recent` / `scrobble` | 本地记录并展示最近播放 |
 | `heartRecommendation` | 心动模式（雷达/猜你喜欢，登录后可用） |
 | `userPlaylists` | 自建歌单（含「我喜欢」）与收藏歌单 |
@@ -28,14 +28,15 @@ QPlayer 的独立 QQ 音乐音源插件，实现 QPlayer JavaScript 插件 ABI 1
 
 推荐数据来源：
 
-- **每日推荐**：`music.recommend.RecommendFeed/get_recommend_feed` 中找到标题含
-  「每日」/「30首」的卡片，用卡片 ID 走歌单详情接口取歌。
 - **推荐歌曲**：登录后用 `music.recommend.TrackRelationServer/GetRadarSong`
-  逐页拉取「猜你喜欢」；未登录或接口不可用时回退到热歌榜。
+  逐页拉取「猜你喜欢」（雷达），作为首页歌曲列表；未登录或接口不可用时回退到热歌榜。
+- **每日 30 首**：`music.recommend.RecommendFeed/get_recommend_feed` 中找到标题含
+  「每日」/「30首」的卡片，作为首页第一张歌单卡片；点击后由 `playlistDetails`
+  读取该歌单的 30 首歌曲。
 - **推荐歌单**：`music.playlist.PlaylistSquare/GetRecommendFeed`，失败时回退
   `playlist.HotRecommendServer/get_hot_recommend`。
 
-未登录时首页仍有热歌与热门歌单；每日推荐和播放地址需要登录 QQ 音乐。
+未登录时首页仍有热歌与热门歌单；每日 30 首卡片和播放地址需要登录 QQ 音乐。
 
 ## 安装
 
@@ -45,7 +46,7 @@ QPlayer 的独立 QQ 音乐音源插件，实现 QPlayer JavaScript 插件 ABI 1
    python scripts/package.py
    ```
 
-   产物为 `dist/qqmusic-1.0.0.qplug`。开发包未签名；Release 包使用
+   产物为 `dist/qqmusic-1.0.1.qplug`。开发包未签名；Release 包使用
    [publisher-key.pub](publisher-key.pub) 对应的 P-256 私钥签名。
 
 2. 在 QPlayer 中打开「设置 → 音源插件 → 导入插件包」，选择该文件并启用。
@@ -59,8 +60,8 @@ QPlayer 的独立 QQ 音乐音源插件，实现 QPlayer JavaScript 插件 ABI 1
 ```bash
 node --check src/main.js
 python scripts/package.py
-python scripts/sign-package.py dist/qqmusic-1.0.0.qplug /secure/path/publisher-private.pem
-python scripts/verify-package.py dist/qqmusic-1.0.0.qplug
+python scripts/sign-package.py dist/qqmusic-1.0.1.qplug /secure/path/publisher-private.pem
+python scripts/verify-package.py dist/qqmusic-1.0.1.qplug
 ```
 
 P-256 私钥必须保存在仓库外，不能提交；[publisher-key.pub](publisher-key.pub)

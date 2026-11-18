@@ -781,12 +781,12 @@ function findDailyCard(cards) {
     var card = cards[i] || {};
     var title = String(card.title || "");
     var id = String(card.id || "");
-    if (id && (title.indexOf("每日") >= 0 || title.indexOf("30首") >= 0)) return id;
+    if (id && (title.indexOf("每日") >= 0 || title.indexOf("30首") >= 0)) return card;
   }
-  return "";
+  return null;
 }
 
-function findDailyTid(body) {
+function findDailyCardData(body) {
   var data = body.feed && body.feed.data || {};
   var shelves = data.v_shelf || [];
   for (var i = 0; i < shelves.length; i++) {
@@ -799,7 +799,54 @@ function findDailyTid(body) {
       if (found) return found;
     }
   }
-  return "";
+  return null;
+}
+
+var radarCache = { songs: [], at: 0 };
+var radarPending = null;
+var dailyCardCache = { card: null, at: 0 };
+var dailyCardPending = null;
+
+/** 「每日30首」作为首页歌单卡片保留；首页歌曲列表本身走雷达推荐。 */
+function dailyPlaylistCard() {
+  var now = Date.now();
+  if (dailyCardCache.card && now - dailyCardCache.at < 5 * 60 * 1000) {
+    return Promise.resolve(dailyCardCache.card);
+  }
+  if (dailyCardPending) return dailyCardPending;
+  dailyCardPending = requireUin().then(function (uin) {
+    if (!uin) return null;
+    return musicu({
+      feed: {
+        module: "music.recommend.RecommendFeed",
+        method: "get_recommend_feed",
+        param: { direction: 0, page: 1, v_cache: [], v_uniq: [], s_num: 0 }
+      }
+    }).then(function (body) {
+      var card = findDailyCardData(body);
+      if (!card) return null;
+      var id = String(card.id || "");
+      if (!id) return null;
+      return {
+        id: id,
+        name: String(card.title || "每日30首"),
+        description: "根据你的音乐口味每日更新",
+        artworkUrl: secureUrl(card.cover || card.pic || card.logo || ""),
+        trackCount: Number(card.cnt || 0) || 30,
+        playCount: 0,
+        subscribed: false,
+        owned: false
+      };
+    }, function () { return null; });
+  }, function () { return null; }).then(function (card) {
+    if (card) dailyCardCache = { card: card, at: Date.now() };
+    dailyCardPending = null;
+    return card;
+  }, function () {
+    dailyCardPending = null;
+    return null;
+  });
+  return dailyCardPending;
 }
 
 function hotSongs(limit) {
@@ -816,7 +863,15 @@ function hotSongs(limit) {
 
 function radarSongs(limit) {
   limit = clampNumber(limit, 1, 100);
-  return requireUin().then(function (uin) {
+  var now = Date.now();
+  if (radarCache.songs.length >= limit && now - radarCache.at < 60 * 1000) {
+    return Promise.resolve(radarCache.songs.slice(0, limit));
+  }
+  if (radarPending) {
+    return radarPending.then(function (songs) { return songs.slice(0, limit); });
+  }
+  var wanted = Math.max(limit, 30);
+  radarPending = requireUin().then(function (uin) {
     if (!uin) return [];
     var out = [];
     var seen = {};
@@ -847,14 +902,20 @@ function radarSongs(limit) {
             added++;
           }
         }
-        if (out.length >= limit || !added || page >= 10) return false;
+        if (out.length >= wanted || !added || page >= 10) return false;
         return loadPage(page + 1);
       }, function () { return false; });
     }
-    return loadPage(1).then(function () {
-      return out.slice(0, limit);
-    });
+    return loadPage(1).then(function () { return out.slice(0, wanted); });
+  }).then(function (songs) {
+    if (songs.length) radarCache = { songs: songs, at: Date.now() };
+    radarPending = null;
+    return songs;
+  }, function (error) {
+    radarPending = null;
+    throw error;
   });
+  return radarPending.then(function (songs) { return songs.slice(0, limit); });
 }
 
 function recommendedSongs(limit) {
@@ -865,33 +926,6 @@ function recommendedSongs(limit) {
       return songs.length ? songs : hotSongs(limit);
     });
   }, function () { return hotSongs(limit); });
-}
-
-function dailyRecommendSongs(limit) {
-  limit = clampNumber(limit, 1, 500);
-  return requireUin().then(function (uin) {
-    if (!uin) return hotSongs(Math.min(limit, 30));
-    return musicu({
-      feed: {
-        module: "music.recommend.RecommendFeed",
-        method: "get_recommend_feed",
-        param: { direction: 0, page: 1, v_cache: [], v_uniq: [], s_num: 0 }
-      }
-    }).then(function (body) {
-      var tid = findDailyTid(body);
-      if (!tid) throw new Error("未找到每日推荐");
-      return dissPage(tid, 0, Math.min(500, limit)).then(function (data) {
-        var songs = songsOf(data.songlist).slice(0, limit);
-        return songs.length ? songs : hotSongs(Math.min(limit, 30));
-      });
-    }).catch(function () {
-      return recommendedSongs(limit).then(function (songs) {
-        return songs.length ? songs : hotSongs(Math.min(limit, 30));
-      });
-    });
-  }, function () {
-    return hotSongs(Math.min(limit, 30));
-  });
 }
 
 function hotRecommendPlaylists(limit) {
@@ -929,15 +963,26 @@ function homePlaylists(limit) {
 }
 
 function home(args) {
+  // 首页歌曲列表使用雷达/猜你喜欢；每日30首改为首页歌单卡片。
   if (args && args.operation === "recommendSongs") {
-    return dailyRecommendSongs(30);
+    return recommendedSongs(30);
   }
   var limit = clampNumber(Number(args && args.limit || 12), 1, 100);
   return Promise.all([
     homePlaylists(limit).catch(function () { return []; }),
-    recommendedSongs(30).catch(function () { return []; })
-  ]).then(function (both) {
-    return { songs: both[1], playlists: both[0] };
+    recommendedSongs(30).catch(function () { return []; }),
+    dailyPlaylistCard()
+  ]).then(function (all) {
+    var playlists = all[0];
+    var daily = all[2];
+    if (daily && daily.id) {
+      var filtered = [];
+      for (var i = 0; i < playlists.length; i++) {
+        if (playlists[i].id !== daily.id) filtered.push(playlists[i]);
+      }
+      playlists = [daily].concat(filtered).slice(0, limit);
+    }
+    return { songs: all[1], playlists: playlists };
   });
 }
 
